@@ -14,8 +14,10 @@ namespace cslib {
     };
 
     template<typename T>
-    class Stack : protected LinkedList<T> {
+    class Stack : private LinkedList<T> {
     public:
+        Stack();
+
         size_t size() const;
         bool empty() const;
 
@@ -29,16 +31,21 @@ namespace cslib {
         class ConstIterator : public LinkedList<T>::ConstIterator {};
 
         Iterator begin();
-        ConstIterator cbegin();
+        ConstIterator cbegin() const;
         Iterator end();
-        ConstIterator cend();
+        ConstIterator cend() const;
     private:
         struct Node : public LinkedList<T>::Node {};
     };
 }
 
-const char* cslib::StackOverflow::what() const { return "Stack Overflow"; }
-const char* cslib::StackUnderflow::what() const { return "Stack Underflow"; }
+const char* cslib::StackOverflow::what() const throw() { return "Stack Overflow"; }
+const char* cslib::StackUnderflow::what() const throw() { return "Stack Underflow"; }
+
+template<typename T>
+cslib::Stack<T>::Stack() : cslib::LinkedList<T>() {
+
+}
 
 template<typename T>
 size_t cslib::Stack<T>::size() const {
@@ -113,7 +120,7 @@ typename cslib::Stack<T>::Iterator cslib::Stack<T>::begin() {
 }
 
 template<typename T>
-typename cslib::Stack<T>::ConstIterator cslib::Stack<T>::cbegin() {
+typename cslib::Stack<T>::ConstIterator cslib::Stack<T>::cbegin() const {
     return this->cbegin();
 }
 
@@ -123,7 +130,7 @@ typename cslib::Stack<T>::Iterator cslib::Stack<T>::end() {
 }
 
 template<typename T>
-typename cslib::Stack<T>::ConstIterator cslib::Stack<T>::cend() {
+typename cslib::Stack<T>::ConstIterator cslib::Stack<T>::cend() const {
     return this->cend();
 }
 
