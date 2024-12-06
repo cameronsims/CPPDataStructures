@@ -142,6 +142,7 @@ namespace cslib {
         }
 
         size_t i = 0;
+
         for (Vector<int>::ConstIterator it = v.cbegin(); it != v.cend(); ++it) {
             if (*it != i) {
                 return false;
