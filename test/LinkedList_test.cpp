@@ -21,10 +21,10 @@ namespace cslib {
         for (size_t i = 0; i < n; i++) {
             float f = (float)i;
             ll.append(f);
-
             if (ll.size() != i + 1) {
                 return false;
             }
+
         }
 
         // Get size 
@@ -270,6 +270,18 @@ namespace cslib {
 
         return true;
     }
+
+    // Delete the last 
+    int LinkedList_test10() {
+        LinkedList<int> ll;
+        for (int i = 0; i < 10; i++) {
+            ll.insert(i, i);
+        }
+
+        ll.remove(9);
+
+        CS_RANGE_TEST(ll[9], OutOfRange);
+    }
 }
 
 
@@ -279,7 +291,7 @@ typedef int(*testf_t)(void);
 int main() {
     using namespace cslib;
 
-    constexpr size_t TEST_SIZE = 9;
+    constexpr size_t TEST_SIZE = 10;
     testf_t test[TEST_SIZE] = { 
         LinkedList_test1,
         LinkedList_test2,
@@ -289,7 +301,8 @@ int main() {
         LinkedList_test6,
         LinkedList_test7,
         LinkedList_test8,
-        LinkedList_test9
+        LinkedList_test9,
+        LinkedList_test10
     };
 
     for (int i = 0; i < TEST_SIZE; i++) {

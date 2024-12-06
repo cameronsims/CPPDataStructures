@@ -1,29 +1,90 @@
+/**
+ * @file Vector.h
+ * @brief A dynamic array
+ **/
+
 #ifndef CSVECTOR_H
 #define CSVECTOR_H
 
 #include "Universal.h"
 
 namespace cslib {
+    /**
+     * @class Vector
+     * @tparam T Type of the data structure.
+     * @brief A dynamically allocated array
+     **/
     template<class T>
     class Vector {
     public:
+        /** 
+         * @brief Constructs the vector class
+         */
         Vector();
+
+        /**
+         * @param p_size The size we're allocating
+         * 
+         * @brief Constructs the vector class of a size
+         */
         explicit Vector(size_t p_size);
+
+        /**
+         * @param p_vector The vector we're copying 
+         * 
+         * @brief Constructs the vector class with an existing vector.
+         */
         Vector(const Vector<T>& p_vector);
+
+        /**
+         * @param p_vector The vector we're copying
+         *
+         * @brief Constructs the vector class with an existing vector.
+         * @return Returns the vector we just constructed.
+         */
         Vector<T>& operator= (const Vector<T>& p_vector);
+
+        /**
+         * @brief Deconstructs the Vector
+         */
         ~Vector();
     
+        /**
+         * @brief Gets the size of the size of the vector
+         * @return Returns the vector's size
+         */
         size_t size() const;
+
+        /**
+         * @param p_index The index of the array
+         *
+         * @brief Gets the value of a value in the array
+         * @return Returns the value located in the array
+         */
         T& operator[](size_t p_index);
+
+        /**
+         * @param p_index The index of the array
+         *
+         * @brief Gets the value of a value in the array
+         * @return Returns the value located in the array
+         */
         const T& operator[](size_t p_index) const;
 
-        void push(const T& p_value);
+        /**
+         * @param p_value The value we're pushing into the vector
+         *
+         * @brief Add the value to the back of the vector
+         * @return Returns the value located in the array
+         */
+        T& push(const T& p_value);
 
 
 
         class Iterator : public cslib::Iterator<T> {
         public:
-            Iterator(T* p_ptr);
+            explicit Iterator(T* p_ptr = nullptr);
+
             Iterator& operator++();
             Iterator  operator++(int);
             Iterator& operator--();
@@ -31,24 +92,61 @@ namespace cslib {
         };
         class ConstIterator : public cslib::ConstIterator<T> {
         public:
-            ConstIterator(const T* p_ptr);
+            explicit ConstIterator(const T* p_ptr = nullptr);
+
             ConstIterator& operator++();
             ConstIterator  operator++(int);
             ConstIterator& operator--();
             ConstIterator  operator--(int);
         };
 
+        /**
+         * @brief Gets the iterator
+         * @return Returns the iterator to the first
+         */
         Iterator begin();
+
+        /**
+         * @brief Gets the iterator
+         * @return Returns the iterator to the first
+         */
         ConstIterator cbegin() const;
+
+        /**
+         * @brief Gets the iterator
+         * @return Returns the iterator to after the last element
+         */
         Iterator end();
+
+        /**
+         * @brief Gets the iterator
+         * @return Returns the iterator to after the last element
+         */
         ConstIterator cend() const;
 
     private:
+        /**
+         * @param p_size Resizes the vector
+         *
+         * @brief Changes the vector size
+         */
         void m_resize(size_t p_size);
+
+        /**
+         * @param p_array The array we're copying
+         * @param p_size The size of the array we're copying
+         *
+         * @brief Copies an array into the array
+         */
         void m_copy(T* p_array, size_t p_size);
     
+        /// The internal array 
         T* m_array = nullptr;
+
+        /// The allocated size 
         size_t m_allocatedSize = 0;
+
+        /// The size to the user
         size_t m_size = 0;
     };
 }
@@ -88,7 +186,7 @@ cslib::Vector<T>::Vector(size_t p_size) {
     
     try {
         m_array = new T[m_allocatedSize];
-    } catch (const std::exception& err) {
+    } catch (const std::exception&) {
         throw OutOfRange();
     }
 }
@@ -113,7 +211,7 @@ size_t cslib::Vector<T>::size() const {
 }
 
 template<class T>
-void cslib::Vector<T>::push(const T& p_value) {
+T& cslib::Vector<T>::push(const T& p_value) {
     if (this->m_size == this->m_allocatedSize) {
         this->m_resize(VECTOR_RESIZE_DEFAULT);
     }
@@ -123,6 +221,8 @@ void cslib::Vector<T>::push(const T& p_value) {
 
     // Increase the size
     this->m_size++;
+
+    return this->m_array[this->m_size - 1];
 }
 
 
@@ -212,32 +312,35 @@ void cslib::Vector<T>::m_copy(T* p_array, size_t p_size) {
 }
 
 
+template<class T>
+cslib::Vector<T>::Iterator::Iterator(T* p_ptr) : cslib::Iterator<T>::Iterator(p_ptr) {
 
+}
 
 template<class T>
 typename cslib::Vector<T>::Iterator cslib::Vector<T>::begin() {
-    return Iterator(this->m_array);
+    Iterator it = Iterator(this->m_array);
+    return it;
 }
 
 template<class T>
 typename cslib::Vector<T>::ConstIterator cslib::Vector<T>::cbegin() const {
-    return ConstIterator(this->m_array);
+    ConstIterator cit = ConstIterator(this->m_array);
+    return cit;
 }
 
 template<class T>
 typename cslib::Vector<T>::Iterator cslib::Vector<T>::end() {
-    return Iterator(this->m_array + m_size);
+    T* last = this->m_array + (m_size);// * sizeof(T);
+    Iterator it = Iterator(last);
+    return it;
 }
 
 template<class T>
 typename cslib::Vector<T>::ConstIterator cslib::Vector<T>::cend() const {
-    return ConstIterator(this->m_array + m_size);
-}
-
-
-template<class T>
-cslib::Vector<T>::Iterator::Iterator(T* p_ptr) {
-    this->m_ptr = p_ptr;
+    const T* last = this->m_array + (m_size);// * sizeof(T);
+    ConstIterator cit = ConstIterator(last);
+    return cit;
 }
 
 template<class T>
@@ -266,10 +369,9 @@ typename cslib::Vector<T>::Iterator  cslib::Vector<T>::Iterator::operator--(int)
     return it;
 }
 
-
 template<class T>
-cslib::Vector<T>::ConstIterator::ConstIterator(const T* p_ptr) {
-    this->m_ptr = p_ptr;
+cslib::Vector<T>::ConstIterator::ConstIterator(const T* p_ptr) : cslib::ConstIterator<T>::ConstIterator(p_ptr) {
+
 }
 
 template<class T>

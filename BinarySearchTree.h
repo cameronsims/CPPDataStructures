@@ -1,72 +1,205 @@
+/**
+ * @file BinarySearchTree.h
+ * @brief Holds the BinarySearchTree structure.
+ **/
+
 #ifndef CSBINARYSEARCHTREE_H
 #define CSBINARYSEARCHTREE_H
 
 #include "Universal.h"
 
-#include "Vector.h"
-#include "Stack.h"
-#include "Queue.h"
-
 namespace cslib {
 
+    /**
+     * @class BSTNodeException
+     * @brief Base for all exceptions thrown by the binary search tree
+     **/
     class BSTNodeException : public Exception {
         const char* what() const throw();
     };
 
+    /**
+     * @class BSTNodeExists
+     * @brief Thrown when a node exists when we're trying to insert it.
+     **/
     class BSTNodeExists : public BSTNodeException {
         const char* what() const throw();
     };
 
+    /**
+     * @class BSTNodeNotFound
+     * @brief Used when a node we're looking for / trying to delete doesn't exist.
+     **/
     class BSTNodeNotFound : public BSTNodeException {
         const char* what() const throw();
     };
     
+    /**
+     * @class BinarySearchTree
+     * @tparam T The type of the data structure
+     * @brief An unbalanced binary tree structure
+     **/
     template<typename T>
     class BinarySearchTree {
     public:
+        /**
+         * @brief Constructs the class
+         */
         BinarySearchTree();
+
+        /**
+         * @param p_bst The Binary Search Tree we're copying  
+         * @brief Copies the right bst into the left
+         */
         BinarySearchTree(const BinarySearchTree<T>& p_bst);
+
+        /**
+         * @param p_bst The Binary Search Tree we're copying
+         * @brief Copies the right bst into the left
+         * @return Returns "this" binary search tree we've just copied
+         */
         BinarySearchTree<T>& operator= (const BinarySearchTree<T>& p_bst);
+
+        /**
+         * @brief Destructs the class
+         */
         ~BinarySearchTree();
 
+        /**
+         * @param p_key The data we're looking for
+         * @brief Searches for the key, returns the entire value of the key
+         * @return Returns the value when we find it
+         */
         const T& search(const T& p_key) const;
-              T  remove(const T& p_key);
+
+        /**
+         * @param p_key The data we're looking to delete
+         * @brief Searches for the key, deletes it and returns it
+         * @return Returns the value when we delete it
+         */
+        T  remove(const T& p_key);
+
+        /**
+         * @param p_key The data we're looking to insert
+         * @brief Finds the appropirate place to put the value in the tree
+         * @return Returns the value when we insert it
+         */
         const T& insert(const T& p_key);
 
+        /**
+         * @tparam TF The function type that we're going to play
+         * @param p_func The function we're going to play when we go past a node
+         * @brief Plays the tree in order (1->2->3->4)
+         */
         template<typename TF>
         void inorder  (TF&& p_func) const;
+
+        /**
+         * @tparam TF The function type that we're going to play
+         * @param p_func The function we're going to play when we go past a node
+         * @brief Plays the tree, center first, left and then right.
+         */
         template<typename TF>
         void preorder (TF&& p_func) const;
+
+        /**
+         * @tparam TF The function type that we're going to play
+         * @param p_func The function we're going to play when we go past a node
+         * @brief Plays the tree, left then right then center.
+         */
         template<typename TF>
         void postorder(TF&& p_func) const;
 
+        /**
+         * @tparam TF The function type that we're going to play
+         * @param p_func The function we're going to play when we go past a node
+         * @brief Plays the tree, goes down each subtree by each subtree.
+         */
         template<typename TF>
         void depthFirst(TF&& p_func) const;
+
+        /**
+         * @tparam TF The function type that we're going to play
+         * @param p_func The function we're going to play when we go past a node
+         * @brief Plays the tree, goes down in a queue each layer by each layer.
+         */
         template<typename TF>
         void breadthFirst(TF&& p_func) const;
 
+        /**
+         * @brief Gets the depth of the tree, 0 = one node, 1 = 2-3 nodes
+         * @return The depth of the tree
+         */
         size_t depth () const;
+
+        /**
+         * @brief Gets the amount of nodes in the tree
+         * @return The amount of nodes in the tree
+         */
         size_t amount() const;
 
+        /**
+         * @brief Clears the tree of all contents
+         */
         void clear();
     
-    private:
+    protected:
+        /**
+         * @struct BinaryNode
+         * @brief Each node in the tree
+         **/
         struct BinaryNode {
+            /// The data value that represents the node
             T data;
+
+            /// The node to the left of this node (will be smaller)
             BinaryNode* left;
+
+            /// The node to the right of this node (will be bigger)
             BinaryNode* right;
         };
 
+        /**
+         * @param p_bst The binary search tree we are copying
+         * @brief Copies the entire binary search tree
+         */
         void m_copy(const BinarySearchTree<T>& p_bst);
+        
+        /**
+         * @brief Delete all the tree
+         */
         void m_delete();
+
+        /**
+         * @param p_key Creates a new node with the node
+         * @brief Copies the entire binary search tree
+         * @return Returns the pointer to a new node
+         */
         BinaryNode* m_create(const T& p_key);
     
+        /// The root of the tree, where we start.
         BinaryNode* m_root;
     
     };
+
+    /**
+     * @fn BinarySearchTree_contains
+     * @tparam T The type of the binary tree
+     * @param p_bst Binary Search Tree that we're reading
+     * @param p_data The data we're trying to find
+     * 
+     * @brief Used to see if the binary search tree contains something without throwing an error
+     * @return True if it exists, false if it doesn't
+     */
+    template<typename T>
+    bool BinarySearchTree_contains(const BinarySearchTree<T>& p_bst, const T& p_data);
+
+
 }
 
-
+#include "Vector.h"
+#include "Stack.h"
+#include "Queue.h"
 
 const char* cslib::BSTNodeException::what() const throw() { return "Node Exception."; }
 const char* cslib::BSTNodeExists::what() const throw() { return "Node exists."; }
@@ -577,6 +710,18 @@ typename cslib::BinarySearchTree<T>::BinaryNode* cslib::BinarySearchTree<T>::m_c
     return node;
 }
 
+
+template<typename T>
+bool cslib::BinarySearchTree_contains(const BinarySearchTree<T>& p_bst, const T& p_data) {
+    // Search the tree and return false if not
+    try {
+        p_bst.search(p_data);
+    } catch (const BSTNodeNotFound&) {
+        return false;
+    }
+
+    return true;
+}
 
 
 
