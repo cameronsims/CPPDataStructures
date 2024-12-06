@@ -1,41 +1,121 @@
+/**
+ * @file Stack.h
+ * @brief Holds the Stack Data Structure, Linear Data Structure. Last-in-first out.
+ **/
+
 #ifndef CSSTACK_H
 #define CSSTACK_H
 
 #include "LinkedList.h"
 
 namespace cslib {
+    /**
+     * @class StackException
+     * @brief Base for all exceptions thrown by the stack
+     **/
     class StackException : public OutOfRange {};
+    
+    /**
+     * @class StackOverflow
+     * @brief Base for overflow exceptions from the stack
+     **/
     class StackOverflow : public StackException {
     public:
         const char* what() const throw();
     };
+    
+    /**
+     * @class StackUnderflow
+     * @brief Base for underflows of the stack
+     **/
     class StackUnderflow : public StackException {
         const char* what() const throw();
     };
 
+
+    /**
+     * @class Stack
+     * @tparam T Type of the data structure.
+     * @brief A Last-in-first out data structure.
+     **/
     template<typename T>
     class Stack : private LinkedList<T> {
     public:
+        /**
+         * @brief Constructor for the Stack Data Structure 
+         */
         Stack();
 
+        /**
+         * @brief Returns the size of the stack.
+         * @return Returns the size of a stack.
+         */
         size_t size() const;
+        
+        /**
+         * @brief Returns true if there is no data in the data structure.
+         * @return True if empty, false if at least one item.
+         */
         bool empty() const;
 
-              T& top();
+        /**
+         * @brief Gets the top value of the stack without poping.
+         * @return Top value of the stack.
+         */
+        T& top();
+
+        /**
+         * @brief Gets the top value of the stack without poping.
+         * @return Top value of the stack.
+         */
         const T& top() const;
 
+        /**
+         * @brief Removes the top value from the stack.
+         * @return Gives the popped value back
+         */
         T  pop();
+
+        /**
+         * @param p_data The data we are adding to the top of the stack. 
+         * 
+         * @brief Adds the parameter into the top of the stack
+         * @return Top value of the stack.
+         */
         T& push(const T& p_data);
 
-        class Iterator : public LinkedList<T>::Iterator {};
-        class ConstIterator : public LinkedList<T>::ConstIterator {};
+        /// The iterator type in the Stack
+        typedef LinkedList<T>::Iterator Iterator;
 
+        /// The const iterator type in the Stack
+        typedef LinkedList<T>::ConstIterator ConstIterator;
+
+        /**
+         * @brief Gets the top value of the stack by iterator.
+         * @return Iterator representing top of the stack
+         */
         Iterator begin();
+
+        /**
+         * @brief Gets the top value of the stack by iterator.
+         * @return Iterator representing top of the stack
+         */
         ConstIterator cbegin() const;
+        
+        /**
+         * @brief Gets the value right after the end of the stack by iterator.
+         * @return Iterator representing past the bottom of the stack
+         */
         Iterator end();
+        
+        /**
+         * @brief Gets the value right after the end of the stack by iterator.
+         * @return Iterator representing past the bottom of the stack
+         */
         ConstIterator cend() const;
     private:
-        struct Node : public LinkedList<T>::Node {};
+        /// The node in the Stack
+        typedef LinkedList<T>::Node Node;
     };
 }
 
