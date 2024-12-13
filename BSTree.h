@@ -1,12 +1,17 @@
 /**
- * @file BinarySearchTree.h
- * @brief Holds the BinarySearchTree structure.
+ * @file BSTree.h
+ * @brief Holds the BSTree structure.
  **/
 
 #ifndef CSBINARYSEARCHTREE_H
 #define CSBINARYSEARCHTREE_H
 
 #include "Universal.h"
+
+#include "LinkedList.h"
+#include "Stack.h"
+#include "Queue.h"
+#include "Vector.h"
 
 namespace cslib {
 
@@ -33,37 +38,54 @@ namespace cslib {
     class BSTNodeNotFound : public BSTNodeException {
         const char* what() const throw();
     };
-    
+
+
     /**
-     * @class BinarySearchTree
+     * @class BSTree
      * @tparam T The type of the data structure
      * @brief An unbalanced binary tree structure
      **/
     template<typename T>
-    class BinarySearchTree {
+    class BSTree;
+
+    /**
+     * @fn BSTree_contains
+     * @tparam T The type of the binary tree
+     * @param p_bst Binary Search Tree that we're reading
+     * @param p_data The data we're trying to find
+     *
+     * @brief Used to see if the binary search tree contains something without throwing an error
+     * @return True if it exists, false if it doesn't
+     */
+    template<typename T>
+    bool BSTree_contains(const BSTree<T>& p_bst, const T& p_data);
+  
+
+    template<typename T>
+    class BSTree {
     public:
         /**
          * @brief Constructs the class
          */
-        BinarySearchTree();
+        BSTree();
 
         /**
          * @param p_bst The Binary Search Tree we're copying  
          * @brief Copies the right bst into the left
          */
-        BinarySearchTree(const BinarySearchTree<T>& p_bst);
+        BSTree(const BSTree<T>& p_bst);
 
         /**
          * @param p_bst The Binary Search Tree we're copying
          * @brief Copies the right bst into the left
          * @return Returns "this" binary search tree we've just copied
          */
-        BinarySearchTree<T>& operator= (const BinarySearchTree<T>& p_bst);
+        BSTree<T>& operator= (const BSTree<T>& p_bst);
 
         /**
          * @brief Destructs the class
          */
-        ~BinarySearchTree();
+        ~BSTree();
 
         /**
          * @param p_key The data we're looking for
@@ -139,6 +161,12 @@ namespace cslib {
         size_t amount() const;
 
         /**
+         * @brief Returns true if there is no data in the tree
+         * @return Returns true if tree is empty, false if it has some data
+         */
+        bool empty() const;
+
+        /**
          * @brief Clears the tree of all contents
          */
         void clear();
@@ -163,12 +191,18 @@ namespace cslib {
          * @param p_bst The binary search tree we are copying
          * @brief Copies the entire binary search tree
          */
-        void m_copy(const BinarySearchTree<T>& p_bst);
+        void m_copy(const BSTree<T>& p_bst);
         
         /**
          * @brief Delete all the tree
          */
         void m_delete();
+
+        /**
+         * @param p_bst The binary search tree we're adding.
+         * @brief Adds another tree into this tree
+         */
+        void m_addSubtree(const BSTree<T>& p_bst);
 
         /**
          * @param p_key Creates a new node with the node
@@ -179,57 +213,67 @@ namespace cslib {
     
         /// The root of the tree, where we start.
         BinaryNode* m_root;
-    
+
+        /// Try optimise the BSTree_contains function
+        friend bool BSTree_contains<>(const BSTree<T>& p_bst, const T& p_data);
     };
-
-    /**
-     * @fn BinarySearchTree_contains
-     * @tparam T The type of the binary tree
-     * @param p_bst Binary Search Tree that we're reading
-     * @param p_data The data we're trying to find
-     * 
-     * @brief Used to see if the binary search tree contains something without throwing an error
-     * @return True if it exists, false if it doesn't
-     */
-    template<typename T>
-    bool BinarySearchTree_contains(const BinarySearchTree<T>& p_bst, const T& p_data);
-
-
 }
-
-#include "Vector.h"
-#include "Stack.h"
-#include "Queue.h"
 
 const char* cslib::BSTNodeException::what() const throw() { return "Node Exception."; }
 const char* cslib::BSTNodeExists::what() const throw() { return "Node exists."; }
 const char* cslib::BSTNodeNotFound::what() const throw() { return "Node not found."; }
 
 template<typename T>
-cslib::BinarySearchTree<T>::BinarySearchTree() : m_root(nullptr) {
+bool cslib::BSTree_contains(const BSTree<T>& p_bst, const T& p_data) {
+    // Search the tree and return false if not
+    // If empty
+    if (p_bst.m_root == nullptr) {
+        return false;
+    }
+
+    // Search until we find a root
+    typename BSTree<T>::BinaryNode* node = p_bst.m_root;
+    while (node != nullptr) {
+        if (node->data < p_data) {
+            node = node->right;
+        } else if (node->data > p_data) {
+            node = node->left;
+        } else {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+
+
+template<typename T>
+cslib::BSTree<T>::BSTree() : m_root(nullptr) {
     
 }
 
 template<typename T>
-cslib::BinarySearchTree<T>::BinarySearchTree(const BinarySearchTree<T>& p_bst) {
-    m_delete();
+cslib::BSTree<T>::BSTree(const BSTree<T>& p_bst) {
     m_copy(p_bst);
 }
 
 template<typename T>
-cslib::BinarySearchTree<T>& cslib::BinarySearchTree<T>::operator= (const BinarySearchTree<T>& p_bst) {
+cslib::BSTree<T>& cslib::BSTree<T>::operator= (const BSTree<T>& p_bst) {
     m_delete();
     m_copy(p_bst);
+    return *this;
 }
 
 template<typename T>
-cslib::BinarySearchTree<T>::~BinarySearchTree() {
+cslib::BSTree<T>::~BSTree() {
     // Delete all...
     m_delete();
 }
 
 template<typename T>
-const T& cslib::BinarySearchTree<T>::search(const T& p_key) const {
+const T& cslib::BSTree<T>::search(const T& p_key) const {
     // If empty
     if (this->m_root == nullptr) {
         throw BSTNodeNotFound();
@@ -252,7 +296,7 @@ const T& cslib::BinarySearchTree<T>::search(const T& p_key) const {
 }
 
 template<typename T>
-T cslib::BinarySearchTree<T>::remove(const T& p_key) {
+T cslib::BSTree<T>::remove(const T& p_key) {
     // Create node
     BinaryNode* node = this->m_create(p_key);
 
@@ -321,7 +365,7 @@ T cslib::BinarySearchTree<T>::remove(const T& p_key) {
 }
 
 template<typename T>
-const T& cslib::BinarySearchTree<T>::insert(const T& p_key) {
+const T& cslib::BSTree<T>::insert(const T& p_key) {
     // Create node
     BinaryNode* node = this->m_create(p_key);
 
@@ -370,7 +414,7 @@ const T& cslib::BinarySearchTree<T>::insert(const T& p_key) {
 }
 
 template<typename T> template<typename TF>
-void cslib::BinarySearchTree<T>::inorder(TF&& p_func) const {
+void cslib::BSTree<T>::inorder(TF&& p_func) const {
     // If empty
     if (this->m_root == nullptr) {
         return;
@@ -420,7 +464,7 @@ void cslib::BinarySearchTree<T>::inorder(TF&& p_func) const {
 }
 
 template<typename T> template<typename TF>
-void cslib::BinarySearchTree<T>::preorder(TF&& p_func) const {
+void cslib::BSTree<T>::preorder(TF&& p_func) const {
     // If empty
     if (this->m_root == nullptr) {
         return;
@@ -448,7 +492,7 @@ void cslib::BinarySearchTree<T>::preorder(TF&& p_func) const {
 }
 
 template<typename T> template<typename TF>
-void cslib::BinarySearchTree<T>::postorder(TF&& p_func) const {
+void cslib::BSTree<T>::postorder(TF&& p_func) const {
     // If empty
     if (this->m_root == nullptr) {
         return;
@@ -495,7 +539,7 @@ void cslib::BinarySearchTree<T>::postorder(TF&& p_func) const {
 
 template<typename T> 
 template<typename TF>
-void cslib::BinarySearchTree<T>::depthFirst(TF&& p_func) const {
+void cslib::BSTree<T>::depthFirst(TF&& p_func) const {
     // If not empty
     if (this->m_root == nullptr) {
         return;
@@ -523,7 +567,7 @@ void cslib::BinarySearchTree<T>::depthFirst(TF&& p_func) const {
 
 template<typename T> 
 template<typename TF>
-void cslib::BinarySearchTree<T>::breadthFirst(TF&& p_func) const {
+void cslib::BSTree<T>::breadthFirst(TF&& p_func) const {
     // If we have no data...
     if (this->m_root == nullptr) {
         return;
@@ -551,7 +595,7 @@ void cslib::BinarySearchTree<T>::breadthFirst(TF&& p_func) const {
 }
 
 template<typename T>
-size_t cslib::BinarySearchTree<T>::depth() const {
+size_t cslib::BSTree<T>::depth() const {
     if (this->m_root == nullptr) {
         throw BSTNodeNotFound();
     }
@@ -597,7 +641,7 @@ size_t cslib::BinarySearchTree<T>::depth() const {
 }
 
 template<typename T>
-size_t cslib::BinarySearchTree<T>::amount() const {
+size_t cslib::BSTree<T>::amount() const {
     // Function to calc 
     size_t n = 0;
 
@@ -631,77 +675,97 @@ size_t cslib::BinarySearchTree<T>::amount() const {
 }
 
 template<typename T>
-void cslib::BinarySearchTree<T>::clear() {
+bool cslib::BSTree<T>::empty() const {
+    return (this->m_root == nullptr);
+}
+
+template<typename T>
+void cslib::BSTree<T>::clear() {
     this->m_delete();
 }
 
 template<typename T>
-void cslib::BinarySearchTree<T>::m_copy(const BinarySearchTree<T>& p_bst) {
+void cslib::BSTree<T>::m_copy(const BSTree<T>& p_bst) {
     // If we have no data...
     if (p_bst.m_root == nullptr) {
         return;
     }
-
-    // Queue based search
-    Queue<BinaryNode*> lqueue;
-    Queue<BinaryNode*> rqueue;
-
-    // Add the root node.
-    rqueue.enqueue(p_bst.m_root);
-
+    
+    // Create the root
     this->m_root = m_create(p_bst.m_root->data);
-    lqueue.enqueue(p_bst.m_root);
 
-    while (!rqueue.empty()) {
-        // Get top node
-        BinaryNode* rnode = rqueue.dequeue();
-        BinaryNode* lnode = lqueue.dequeue();
+    // Use a stack to mimic recursion
+    Stack<BinaryNode*> lstack;
+    Stack<BinaryNode*> rstack;
+    lstack.push( this->m_root );
+    rstack.push( p_bst.m_root );
 
+    while (!rstack.empty()) {
+        // Get top of the stack
+        BinaryNode* rnode = rstack.pop();
+        BinaryNode* lnode = lstack.pop();
+
+        // Left Node
         if (rnode->left != nullptr) {
-            rqueue.enqueue(rnode->left);
-
+            rstack.push(rnode->left);
+            
             lnode->left = m_create(rnode->left->data);
-            lqueue.enqueue(lnode->left);
+            lstack.push(lnode->left);
         }
+
+        // Right Node
         if (rnode->right != nullptr) {
-            rqueue.enqueue(rnode->right);
+            rstack.push(rnode->right);
 
             lnode->right = m_create(rnode->right->data);
-            lqueue.enqueue(lnode->right);
+            lstack.push(lnode->right);
         }
     }
+
 }
 
+#include <iostream>
 template<typename T>
-void cslib::BinarySearchTree<T>::m_delete() {
+void cslib::BSTree<T>::m_delete() {
     // If we have no data...
     if (this->m_root == nullptr) {
         return;
     }
 
-    // Queue based search
-    Queue<BinaryNode*> queue;
-
-    // Add the root node.
-    queue.enqueue(this->m_root);
-    while (!queue.empty()) {
-        // Get top node
-        BinaryNode* node = queue.dequeue();
-        if (node->left != nullptr) {
-            queue.enqueue(node->left);
-        }
-        if (node->right != nullptr) {
-            queue.enqueue(node->right);
-        }
-        
-        delete node;
+    // Queue traversal.
+    Stack<BinaryNode*> stack;
+    if (this->m_root->left != nullptr) {
+        stack.push(this->m_root->left);
+    }
+    if (this->m_root->right != nullptr) {
+        stack.push(this->m_root->right);
     }
 
+    // Delete root
+    delete this->m_root;
     this->m_root = nullptr;
+
+    while (!stack.empty()) {
+        // Get the node
+        BinaryNode* node = stack.pop();
+        BinaryNode* left = node->left;
+        BinaryNode* right = node->right;
+        
+        // If there is children
+        if (left != nullptr) {
+            stack.push(left);
+        }
+        if (right != nullptr) {
+            stack.push(right);
+        }
+        
+        // Delete node.
+        delete node;
+    }
 }
 
 template<typename T>
-typename cslib::BinarySearchTree<T>::BinaryNode* cslib::BinarySearchTree<T>::m_create(const T& p_key) {
+typename cslib::BSTree<T>::BinaryNode* cslib::BSTree<T>::m_create(const T& p_key) {
     // Create node
     BinaryNode* node = new BinaryNode;
     node->data = p_key;
@@ -710,19 +774,37 @@ typename cslib::BinarySearchTree<T>::BinaryNode* cslib::BinarySearchTree<T>::m_c
     return node;
 }
 
-
 template<typename T>
-bool cslib::BinarySearchTree_contains(const BinarySearchTree<T>& p_bst, const T& p_data) {
-    // Search the tree and return false if not
-    try {
-        p_bst.search(p_data);
-    } catch (const BSTNodeNotFound&) {
-        return false;
+void cslib::BSTree<T>::m_addSubtree(const BSTree<T>& p_bst) {
+    // We're adding the binary tree
+    BinaryNode* subtree = p_bst.m_root;
+
+    // ... Copy to subtree pointer
+
+    BinaryNode* node = this->m_root;
+    if (node == nullptr) {
+        this->m_root = subtree;
     }
 
-    return true;
+    // Loop while we need to find a node
+    while (node != nullptr) {
+        if (node->data > subtree->data) {
+            // If the node left is nullptr set this to bst
+            if (node->left == nullptr) {
+                node->left = subtree;
+            }
+            node = node->left;
+        } else if (node->data < subtree->data) {
+            // If the node right is nullptr set this to bst
+            if (node->right == nullptr) {
+                node->right = subtree;
+            }
+            node = node->right;
+        } else {
+            throw BSTNodeExists();
+        }
+    }
 }
-
 
 
 #endif

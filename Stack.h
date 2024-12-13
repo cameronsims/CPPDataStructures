@@ -130,7 +130,7 @@ cslib::Stack<T>::Stack() : cslib::LinkedList<T>() {
 template<typename T>
 size_t cslib::Stack<T>::size() const {
     // Get size from 
-    return this->size();
+    return cslib::LinkedList<T>::size();
 }
 
 template<typename T>
@@ -168,6 +168,11 @@ T cslib::Stack<T>::pop() {
     Node* node = (Node*)this->m_data->next;
     delete this->m_data;
 
+    if (node == nullptr) {
+        this->m_data = nullptr;
+        return temp;
+    }
+
     // Save new root
     this->m_data = node;
 
@@ -183,7 +188,7 @@ T& cslib::Stack<T>::push(const T& p_data) {
     
     try {
         node = new Node;
-    } catch (const std::exception& e) {
+    } catch (const std::exception&) {
         throw StackOverflow();
     }
 

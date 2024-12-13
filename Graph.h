@@ -11,7 +11,7 @@
 #include "LinkedList.h"
 #include "Stack.h"
 #include "Queue.h"
-#include "BinarySearchTree.h"
+#include "BSTree.h"
 
 namespace cslib {
     /**
@@ -461,7 +461,7 @@ void cslib::Graph<T>::depthFirst(size_t p_start, TF&& p_func) const {
     }
 
     // Stack based search
-    BinarySearchTree<size_t> visited;
+    BSTree<size_t> visited;
     visited.insert(p_start);
 
     Stack<size_t> stack;
@@ -481,7 +481,7 @@ void cslib::Graph<T>::depthFirst(size_t p_start, TF&& p_func) const {
         for (LLConstIterator it = ll.cbegin(); it != ll.cend(); ++it) {
             // If value is
             size_t value = *it;
-            if (!BinarySearchTree_contains(visited, value)) {
+            if (!BSTree_contains(visited, value)) {
                 stack.push(value);
                 visited.insert(value);
             }
@@ -498,7 +498,7 @@ void cslib::Graph<T>::breadthFirst(size_t p_start, TF&& p_func) const {
     }
 
     // Stack based search
-    BinarySearchTree<size_t> visited;
+    BSTree<size_t> visited;
     visited.insert(p_start);
 
     Queue<size_t> queue;
@@ -517,7 +517,7 @@ void cslib::Graph<T>::breadthFirst(size_t p_start, TF&& p_func) const {
             typedef LinkedList<size_t>::ConstIterator LLConstIterator;
             for (LLConstIterator it = ll.cbegin(); it != ll.cend(); ++it) {
                 size_t value = *it;
-                if (!BinarySearchTree_contains(visited, value)) {
+                if (!BSTree_contains(visited, value)) {
                     queue.enqueue(value);
                     visited.insert(value);
                 }
