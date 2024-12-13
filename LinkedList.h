@@ -22,6 +22,7 @@ namespace cslib {
      * @brief Thrown when node can't be created
      **/
     class LinkedListNodeCantCreate : public LinkedListException {
+    public:
         const char* what() const throw();
     };
 
@@ -282,16 +283,6 @@ namespace cslib {
     template<typename T>
     bool LinkedList_contains(const LinkedList<T>& p_ll, const T& p_data);
 }
-
-const char* cslib::LinkedListException::what() const throw() {
-    return "Linked List Exception";
-}
-
-const char* cslib::LinkedListNodeCantCreate::what() const throw() {
-    return "Linked List node can't be created.";
-}
-
-
 
 template<typename T>
 cslib::LinkedList<T>::LinkedList() : m_data(nullptr), m_last(nullptr) {
